@@ -125,6 +125,9 @@ $(F90_OBJ) : %.o : %.f90
 # dependencies for F90 module files
 $(F90_MOD) : %.mod : %.o
 
+# extra fortran dependencies
+lusol.o : lusol_precision.mod
+
 # C code generation
 src/clusol.h: $(INTERFACE_FILES)
 	./gen/interface.py -i gen/interface_files.org -o $@ -t header
