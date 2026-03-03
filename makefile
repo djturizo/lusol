@@ -38,17 +38,6 @@ else
   F77FLAGS := -m64 -fPIC -fdefault-integer-8 $(FOPT)
 endif
 
-# Matlab
-ML := matlab
-MLFLAGS := -nojvm -nodisplay
-ifneq ($(DARWIN),)
-  # settings for mac os x
-  MLARCH := maci64
-else
-  # settins for linux
-  MLARCH := glnxa64
-endif
-
 # Linker
 ifneq ($(DARWIN),)
   # settings for mac os x
@@ -68,7 +57,7 @@ ifneq ($(DARWIN),)
   LDLIBS += /usr/local/opt/gcc/lib/gcc/5/libquadmath.a
   LDLIBS += /usr/local/Cellar/gcc/5.3.0/lib/gcc/5/gcc/x86_64-apple-darwin15.0.0/5.3.0/libgcc.a
   # get blas from Matlab
-  LDLIBS += -L/Applications/MATLAB_R2015b.app/bin/maci64 -lmwblas
+  # LDLIBS += -L/Applications/MATLAB_R2015b.app/bin/maci64 -lmwblas
 else
   # settins for linux
   LD := gcc
@@ -80,13 +69,6 @@ else
   LDLIBS :=
   LDLIBS += -Wl,-rpath,/usr/lib -lgfortran
 endif
-
-# list of files required by matlab
-MATLAB_FILES := \
-  matlab/libclusol.$(LIB_SUFFIX) \
-  matlab/clusol.h \
-  matlab/libclusol_proto_$(MLARCH).m \
-  matlab/libclusol_thunk_$(MLARCH).$(LIB_SUFFIX)
 
 # list of interface specification files
 INTERFACE_FILES := \
@@ -161,24 +143,11 @@ src/clusol.o: src/clusol.c src/clusol.h
 src/libclusol.$(LIB_SUFFIX): $(OBJ) $(EXPORT_SYMBOLS)
 	$(LD) $(LDFLAGS) $(OBJ) -o $@ $(LDLIBS)
 
-# file copying to matlab directory
-$(MATLAB_FILES): src/libclusol.$(LIB_SUFFIX) src/clusol.h
-	cp src/libclusol.$(LIB_SUFFIX) src/clusol.h ./matlab/
-	$(ML) $(MLFLAGS) -r "cd matlab; lusol_build; exit"
-
-.PHONY: matlab
-matlab: $(MATLAB_FILES)
-
-.PHONY: matlab_test
-matlab_test: $(MATLAB_FILES)
-	$(ML) $(MLFLAGS) -r "cd matlab; lusol_test; exit"
-
 .PHONY: clean
 clean:
 	$(RM) src/*.o
 	$(RM) src/*.$(LIB_SUFFIX)
 	$(RM) src/*.mod
-	$(RM) $(MATLAB_FILES)
 
 .PHONY: clean_gen
 clean_gen:
