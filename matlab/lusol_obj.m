@@ -1009,10 +1009,8 @@ classdef lusol_obj < handle
       % in each row in original order.  locr(1:m) points to the beginning
       % of rows and is stored in original order.
       %
-      % Special care must be taken when A is rank deficient.  LUSOL
-      % actually stores lenU-nsing entries.  I suppose the extra nsing
-      % contained in lenU could be for the zeros on the diagonal.  However,
-      % LUSOL seems to handle these implicitly.
+      % Special care must be taken when A is rank deficient.  LUSOL may 
+      % actually store less than lenU entries.
       %
 
       % permutation flag, set true if user desires upper triangular U and
@@ -1034,9 +1032,9 @@ classdef lusol_obj < handle
       q = obj.q();
       s = obj.stats();
       % initialize arrays for U triplets
-      ui = zeros(s.lenU-s.nsing,1,'double');
-      uj = zeros(s.lenU-s.nsing,1,'double');
-      ua = zeros(s.lenU-s.nsing,1,'double');
+      ui = zeros(s.lenU,1,'double');
+      uj = zeros(s.lenU,1,'double');
+      ua = zeros(s.lenU,1,'double');
       % obtain required matrix data
       a = obj.a_ptr.Value;
       lenr = obj.lenr_ptr.Value;
@@ -1062,6 +1060,10 @@ classdef lusol_obj < handle
         % increment row start pointer
         k1 = k1+len;
       end
+      % delete unused entries
+      ui[k1:end] = [];
+      uj[k1:end] = [];
+      ua[k1:end] = [];
       % generate sparse matrix
       U = sparse(ui,uj,ua,m,n);
       % handle optional permutation of U
