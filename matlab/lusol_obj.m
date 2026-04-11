@@ -1061,9 +1061,9 @@ classdef lusol_obj < handle
         k1 = k1+len;
       end
       % delete unused entries
-      ui[k1:end] = [];
-      uj[k1:end] = [];
-      ua[k1:end] = [];
+      ui(k1:end) = [];
+      uj(k1:end) = [];
+      ua(k1:end) = [];
       % generate sparse matrix
       U = sparse(ui,uj,ua,m,n);
       % handle optional permutation of U
